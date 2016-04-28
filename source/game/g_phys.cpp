@@ -193,6 +193,19 @@ static edict_t *SV_TestEntityPosition( edict_t *ent )
 
 	return NULL;
 }
+static edict_t *SV_TestEntityPositionDead( edict_t *ent )
+{
+	trace_t	trace;
+	int mask;
+
+	mask = MASK_DEADSOLID;
+
+	G_Trace4D(&trace, ent->s.origin, ent->r.mins, ent->r.maxs, ent->s.origin, ent, mask, ent->timeDelta);
+	if (trace.startsolid)
+		return game.edicts;
+
+	return NULL;
+}
 
 /*
 * SV_CheckVelocity
@@ -475,11 +488,12 @@ edict_t	*obstacle;
 static bool SV_Push( edict_t *pusher, vec3_t move, vec3_t amove )
 {
 	int i, e;
-	edict_t	*check, *block;
+	edict_t	*check, *block, *gblock;
 	vec3_t mins, maxs;
 	pushed_t *p;
 	mat3_t axis;
 	vec3_t org, org2, move2;
+	vec3_t gmove, gmove2;
 
 	// clamp the move so the position will
 	// be accurate for client side prediction
@@ -575,14 +589,27 @@ static bool SV_Push( edict_t *pusher, vec3_t move, vec3_t amove )
 			}
 
 			block = SV_TestEntityPosition( check );
-			if( !block )
+			// check if blocked by ghostmove player, MASK_DEADSOLID
+			gblock = SV_TestEntityPositionDead(check);
+			if( block && !gblock ) // only blocked by ghostmove player
 			{
+				// subtract half of the movement, otherwise doubled movement
+				VectorScale(move, 0.5, gmove);
+				VectorScale(move2, 0.5, gmove2);
+				VectorSubtract(check->s.origin, gmove, check->s.origin);
+				VectorSubtract(check->s.origin, gmove2, check->s.origin);
 				// pushed ok
 				GClip_LinkEntity( check );
 				// impact?
 				continue;
 			}
-			else
+			else if ( !gblock ) // not blocked by anything
+			{
+				// pushed ok
+				GClip_LinkEntity(check);
+				// impact?
+				continue;
+			} else
 			{
 				// try to fix block
 				// if it is ok to leave in the old position, do it
