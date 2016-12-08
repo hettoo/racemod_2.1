@@ -984,9 +984,9 @@ void GClip_SetBrushModel( edict_t *ent, const char *name )
 
 	if( !name )
 	{
-		G_Error( "GClip_SetBrushModel: NULL model in '%s'", 
-		ent->classname ? ent->classname : "no classname" );
 		// racesow
+		G_Printf( "GClip_SetBrushModel: NULL model in '%s'", 
+		ent->classname ? ent->classname : "no classname" );
 		GClip_UnlinkEntity( ent );
 		G_FreeEdict( ent );
 		return;
