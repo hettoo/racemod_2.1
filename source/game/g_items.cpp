@@ -152,7 +152,7 @@ static bool Pickup_Powerup( edict_t *other, const gsitem_t *item, int flags, int
 	{
 		int timeout;
 
-		if( flags & DROPPED_ITEM )
+		if( GS_RaceGametype() || flags & DROPPED_ITEM )
 			timeout = count + 1;
 		else
 			timeout = item->quantity + 1;
