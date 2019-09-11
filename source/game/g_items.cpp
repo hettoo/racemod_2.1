@@ -378,6 +378,15 @@ void Touch_ItemSound( edict_t *other, const gsitem_t *item )
 }
 
 /*
+* Use_Item
+*/
+
+void Use_Item( edict_t *ent, edict_t *other, edict_t *activator )
+{
+	Touch_Item(ent, activator, NULL, 0);
+}
+
+/*
 * Touch_Item
 */
 void Touch_Item( edict_t *ent, edict_t *other, cplane_t *plane, int surfFlags )
@@ -883,6 +892,7 @@ static void Finish_SpawningItem( edict_t *ent )
 	ent->r.svflags &= ~SVF_NOCLIENT;
 	ent->movetype = MOVETYPE_TOSS;
 	ent->touch = Touch_Item;
+	ent->use = Use_Item;
 	ent->attenuation = 1;
 
 	if( ent->spawnflags & 1 )
