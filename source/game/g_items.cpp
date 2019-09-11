@@ -411,7 +411,7 @@ void Touch_Item( edict_t *ent, edict_t *other, cplane_t *plane, int surfFlags )
 	if( !( ent->spawnflags & ITEM_TARGETS_USED ) )
 	{
 		G_UseTargets( ent, other );
-		ent->spawnflags |= ITEM_TARGETS_USED;
+		// ent->spawnflags |= ITEM_TARGETS_USED;
 	}
 
 	if( !taken )
