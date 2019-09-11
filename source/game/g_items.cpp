@@ -1022,6 +1022,11 @@ void SpawnItem( edict_t *ent, const gsitem_t *item )
 	ent->s.itemNum = item->tag;
 	ent->item = item;
 	ent->s.effects = 0; // default effects are applied client side
+
+	if ( ent->count < 1 ) // fix for negative ammo counts in defrag (infinite ammo?)
+	{
+		ent->count = 1;
+	}
 }
 
 
