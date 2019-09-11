@@ -428,7 +428,7 @@ void Touch_Item( edict_t *ent, edict_t *other, cplane_t *plane, int surfFlags )
 
 	if( !( ent->spawnflags & DROPPED_ITEM ) && G_Gametype_CanRespawnItem( item ) )
 	{
-		if( (item->type & IT_WEAPON ) && GS_RaceGametype() )
+		if( (item->type & IT_WEAPON || item->type & IT_HEALTH ) && GS_RaceGametype() )
 			return; // weapons stay in race
 		SetRespawn( ent, G_Gametype_RespawnTimeForItem( item ) );
 		return;
