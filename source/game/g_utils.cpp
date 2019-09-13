@@ -1958,7 +1958,7 @@ void G_DropSpawnpointToFloor( edict_t *ent )
 		return;
 	}
 
-	if( ent->spawnflags & 1 )  //  floating items flag, we test that they are not inside solid too
+	if( ent->spawnflags & 1 || !strcmpi( cm_mapHeader->string, "IBSP" ) )  //  floating items flag, we test that they are not inside solid too
 		return;
 
 	if( trace.fraction < 1.0f )
