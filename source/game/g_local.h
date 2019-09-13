@@ -495,6 +495,7 @@ edict_t *GT_asCallSelectSpawnPoint( edict_t *ent );
 bool GT_asCallGameCommand( gclient_t *client, const char *cmd, const char *args, int argc );
 bool GT_asCallBotStatus( edict_t *ent );
 void GT_asCallShutdown( void );
+float GT_asCallVotePower( gclient_t *client, const char *votename, bool voted, bool yes );
 
 void G_asCallMapEntityThink( edict_t *ent );
 void G_asCallMapEntityTouch( edict_t *ent, edict_t *other, cplane_t *plane, int surfFlags );

@@ -134,6 +134,7 @@ typedef struct
 	void *clientCommandFunc;
 	void *botStatusFunc;
 	void *shutdownFunc;
+	void *votePowerFunc;
 
 	int spawnableItemsMask;
 	int respawnableItemsMask;
