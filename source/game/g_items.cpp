@@ -895,7 +895,7 @@ static void Finish_SpawningItem( edict_t *ent )
 	ent->use = Use_Item;
 	ent->attenuation = 1;
 
-	if( ent->spawnflags & 1 )
+	if( ent->spawnflags & 1 || ent->targetname )
 		ent->gravity = 0;
 
 	// drop the item to floor
