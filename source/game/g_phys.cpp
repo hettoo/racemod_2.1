@@ -871,7 +871,7 @@ static void SV_Physics_Toss( edict_t *ent )
 	isinwater = ent->watertype & MASK_WATER ? true : false;
 
 	// never allow items in CONTENTS_NODROP
-	if( ent->item && ( ent->watertype & CONTENTS_NODROP ) )
+	if( ent->item && ( ent->watertype & CONTENTS_NODROP ) && !GS_RaceGametype() )
 	{
 		G_FreeEdict( ent );
 		return;
