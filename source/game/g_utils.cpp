@@ -1931,27 +1931,38 @@ void G_DropToFloor( edict_t *ent )
 void G_DropSpawnpointToFloor( edict_t *ent )
 {
 	vec3_t start, end;
+	vec3_t playerbox_stand_mins_fix, playerbox_stand_maxs_fix;
 	trace_t	trace;
+	bool success = true;
 
 	const float HITBOX_EPSILON = 0.01f;
 
 	VectorCopy( ent->s.origin, start );
-	start[2] += HITBOX_EPSILON; // was 16
+	start[2] += 16;
 	VectorCopy( ent->s.origin, end );
 	end[2] -= 16000;
 
-	vec3_t playerbox_stand_mins_fix;
-	VectorCopy( playerbox_stand_mins, playerbox_stand_mins_fix );
-	vec3_t playerbox_stand_maxs_fix;
-	VectorCopy( playerbox_stand_maxs, playerbox_stand_maxs_fix );
+	// try normal trace first
+	G_Trace( &trace, start, playerbox_stand_mins, playerbox_stand_maxs, end, ent, MASK_PLAYERSOLID );
+	success = !( trace.startsolid || trace.allsolid );
 
-	for ( int i = 0; i < 2; i++ ) {
-		playerbox_stand_mins_fix[i] += HITBOX_EPSILON;
-		playerbox_stand_maxs_fix[i] -= HITBOX_EPSILON;
+	// try tighter trace second
+	if( !success )
+	{
+		VectorCopy( playerbox_stand_mins, playerbox_stand_mins_fix );
+		VectorCopy( playerbox_stand_maxs, playerbox_stand_maxs_fix );
+
+		for ( int i = 0; i < 2; i++ ) {
+			playerbox_stand_mins_fix[i] += HITBOX_EPSILON;
+			playerbox_stand_maxs_fix[i] -= HITBOX_EPSILON;
+		}
+
+		start[2] -= 16 - HITBOX_EPSILON;
+		G_Trace( &trace, start, playerbox_stand_mins_fix, playerbox_stand_maxs_fix, end, ent, MASK_PLAYERSOLID );
+		success = !( trace.startsolid || trace.allsolid );
 	}
 
-	G_Trace( &trace, start, playerbox_stand_mins_fix, playerbox_stand_maxs_fix, end, ent, MASK_PLAYERSOLID );
-	if( trace.startsolid || trace.allsolid )
+	if( !success )
 	{
 		G_Printf( "Warning: %s %s spawns inside solid. Inhibited\n", ent->classname, vtos( ent->s.origin ) );
 		G_FreeEdict( ent );
