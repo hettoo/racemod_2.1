@@ -58,7 +58,7 @@ void DoRespawn( edict_t *ent )
 	G_AddEvent( ent, EV_ITEM_RESPAWN, ent->item ? ent->item->tag : 0, true );
 
 	// powerups announce their presence with a global sound
-	if( ent->item && ( ent->item->type & IT_POWERUP ) )
+	/*if( ent->item && ( ent->item->type & IT_POWERUP ) )
 	{
 		if( ent->item->tag == POWERUP_QUAD )
 			G_GlobalSound( CHAN_AUTO, trap_SoundIndex( S_ITEM_QUAD_RESPAWN ) );
@@ -66,7 +66,7 @@ void DoRespawn( edict_t *ent )
 			G_GlobalSound( CHAN_AUTO, trap_SoundIndex( S_ITEM_WARSHELL_RESPAWN ) );
 		if( ent->item->tag == POWERUP_REGEN )
 			G_GlobalSound( CHAN_AUTO, trap_SoundIndex( S_ITEM_REGEN_RESPAWN ) );
-	}
+	}*/
 }
 
 void SetRespawn( edict_t *ent, int delay )
@@ -152,7 +152,7 @@ static bool Pickup_Powerup( edict_t *other, const gsitem_t *item, int flags, int
 	{
 		int timeout;
 
-		if( flags & DROPPED_ITEM )
+		if( GS_RaceGametype() || flags & DROPPED_ITEM )
 			timeout = count + 1;
 		else
 			timeout = item->quantity + 1;
@@ -378,6 +378,15 @@ void Touch_ItemSound( edict_t *other, const gsitem_t *item )
 }
 
 /*
+* Use_Item
+*/
+
+void Use_Item( edict_t *ent, edict_t *other, edict_t *activator )
+{
+	Touch_Item(ent, activator, NULL, 0);
+}
+
+/*
 * Touch_Item
 */
 void Touch_Item( edict_t *ent, edict_t *other, cplane_t *plane, int surfFlags )
@@ -402,7 +411,7 @@ void Touch_Item( edict_t *ent, edict_t *other, cplane_t *plane, int surfFlags )
 	if( !( ent->spawnflags & ITEM_TARGETS_USED ) )
 	{
 		G_UseTargets( ent, other );
-		ent->spawnflags |= ITEM_TARGETS_USED;
+		// ent->spawnflags |= ITEM_TARGETS_USED;
 	}
 
 	if( !taken )
@@ -428,7 +437,7 @@ void Touch_Item( edict_t *ent, edict_t *other, cplane_t *plane, int surfFlags )
 
 	if( !( ent->spawnflags & DROPPED_ITEM ) && G_Gametype_CanRespawnItem( item ) )
 	{
-		if( (item->type & IT_WEAPON ) && GS_RaceGametype() )
+		if( (item->type & IT_WEAPON || item->type & IT_HEALTH ) && GS_RaceGametype() )
 			return; // weapons stay in race
 		SetRespawn( ent, G_Gametype_RespawnTimeForItem( item ) );
 		return;
@@ -883,9 +892,10 @@ static void Finish_SpawningItem( edict_t *ent )
 	ent->r.svflags &= ~SVF_NOCLIENT;
 	ent->movetype = MOVETYPE_TOSS;
 	ent->touch = Touch_Item;
+	ent->use = Use_Item;
 	ent->attenuation = 1;
 
-	if( ent->spawnflags & 1 )
+	if( ent->spawnflags & 1 || ent->targetname )
 		ent->gravity = 0;
 
 	// drop the item to floor
@@ -1012,6 +1022,11 @@ void SpawnItem( edict_t *ent, const gsitem_t *item )
 	ent->s.itemNum = item->tag;
 	ent->item = item;
 	ent->s.effects = 0; // default effects are applied client side
+
+	if ( ent->count < 1 ) // fix for negative ammo counts in defrag (infinite ammo?)
+	{
+		ent->count = 1;
+	}
 }
 
 
